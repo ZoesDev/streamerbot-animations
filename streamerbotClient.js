@@ -12,5 +12,26 @@ const client = new StreamerbotClient({
     retries: -1,
 });
 
+//enable or disable
+client.on('Command.Triggered', (event) => {
+    console.log('Received event:', event.data.command);
+
+    // waiting for command
+    if (event.data.command === '!Animations disable') {
+      console.log('Animations disable');
+      // Trigger something based on the event
+    }
+    if (event.data.command === '!Animations enable') {
+        console.log('animations enabled');
+        // Trigger something based on the event
+      }
+    if (event.data.command === '!Animations status') {
+    console.log('animations status');
+    // Trigger something based on the event
+    }
+});
+
+
+
 
 export { client };
