@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animation Overlay</title>
+  <style>
+    /* Basic styling for animations */
+    .animation-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      visibility: hidden; /* Hidden by default */
+      transition: visibility 0.5s ease;
+    }
+
+    /* Add different styles for each animation (optional) */
+    .animation-container p {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Animation Content -->
+  <div id="animation1" class="animation-container">
+    <p>Animation 1 triggered!</p>
+  </div>
+  <div id="animation2" class="animation-container">
+    <p>Animation 2 triggered!</p>
+  </div>
+  <div id="animation3" class="animation-container">
+    <p>Animation 3 triggered!</p>
+  </div>
+
+  <script>
+    // ============================
+    // CONFIGURATION SECTION
+    // ============================
+    const socketUrl = 'ws://localhost:8080';  // WebSocket server URL
+    const globalCooldown = 5000;  // Global cooldown in milliseconds (5 seconds)
+
+    // Define the keyword map with specific match types and per-animation cooldowns
+    const keywordMap = {
+      'salty': { animation: 'animation1', matchType: 'partial', cooldown: 3000 },  // 3-second cooldown for 'salty'
+      'happy': { animation: 'animation2', matchType: 'exact', cooldown: 5000 },   // 5-second cooldown for 'happy'
+      'excited': { animation: 'animation3', matchType: 'partial', cooldown: 2000 } // 2-second cooldown for 'excited'
+    };
+
+    // ============================
+    // GLOBAL VARIABLES
+    // ============================
+    let lastTriggered = 0;  // Timestamp of last global animation trigger
+    let animationCooldowns = {}; // Store individual cooldowns for each animation
+
+    // ============================
+    // SETUP THE WEB SOCKET
+    // ============================
+    const socket = new WebSocket(socketUrl);
+
+    // ============================
+    // HANDLE MESSAGES FROM SERVER
+    // ============================
+    socket.onmessage = (event) => {
+      const message = event.data;
+      console.log('Received message:', message);
+
+      // Only trigger animation if enough time has passed since the last global trigger
+      const currentTime = Date.now();
+      if (currentTime - lastTriggered >= globalCooldown) {
+        // Check if the message contains any keywords from the map
+        for (let keyword in keywordMap) {
+          let matchFound = false;
+          const matchType = keywordMap[keyword].matchType;
+          const animationId = keywordMap[keyword].animation;
+          const animationCooldown = keywordMap[keyword].cooldown; // Per-animation cooldown
+
+          // If matchType is "exact", check for an exact match (case-insensitive)
+          if (matchType === "exact" && message.toLowerCase() === keyword.toLowerCase()) {
+            matchFound = true;
+          }
+
+          // If matchType is "partial", check if the message contains the keyword (case-insensitive)
+          if (matchType === "partial" && message.toLowerCase().includes(keyword.toLowerCase())) {
+            matchFound = true;
+          }
+
+          // If a match is found, check if the individual animation cooldown has elapsed
+          if (matchFound) {
+            if (!animationCooldowns[animationId] || currentTime - animationCooldowns[animationId] >= animationCooldown) {
+              // Trigger the corresponding animation
+              const animationElement = document.getElementById(animationId);
+              animationElement.style.visibility = 'visible';
+
+              // Optionally hide the animation after a delay
+              setTimeout(() => {
+                animationElement.style.visibility = 'hidden';
+              }, 5000);  // Hide animation after 5 seconds
+
+              // Update the timestamps for cooldowns
+              lastTriggered = currentTime; // Update the global cooldown
+              animationCooldowns[animationId] = currentTime; // Update per-animation cooldown
+            }
+          }
+        }
+      } else {
+        console.log('Global cooldown active, animation not triggered.');
+      }
+    };
+
+    socket.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket closed');
+    };
+  </script>
+
+</body>
+</html>
