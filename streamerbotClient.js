@@ -8,16 +8,9 @@ const client = new StreamerbotClient({
     host: process.env.streamerbotHost,
     port: process.env.streamerbotPort,
     autoReconnect: true,
+    immediate: true,
     retries: -1,
 });
 
-// Function to send a message to Streamer.bot chat (Twitch or YouTube)
-const sendMessageToChat = (message) => {
-    // Send the message to Twitch chat
-    client.send('Twitch.ChatMessage', { message });
 
-    // Send the message to YouTube chat
-    client.send('YouTube.ChatMessage', { message });
-};
-
-export { client, sendMessageToChat };
+export { client };

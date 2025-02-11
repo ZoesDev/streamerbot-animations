@@ -1,9 +1,7 @@
-// messageHandler.js
-import { debugLog } from './utils.js';  // We'll import the debugLog function
-import { sendMessageToClients } from './websocketServer.js';  // Import WebSocket client handler
+import { debugLog } from './utils.js';  // Import the debugLog function
+import { wss,sendMessageToClients } from './websocketServer.js';  // Import WebSocket server instance
 import 'dotenv/config';
-// Flag to control whether animations are allowed or not
-let disableAnimations = false;
+
 
 // Combined message handler to process Twitch and YouTube chat
 const handleMessage = (data) => {
@@ -42,24 +40,9 @@ const handleMessage = (data) => {
         return;  // Ignore the message
     }
 
-    if (disableAnimations) {
-        debugLog('Animations are currently disabled.');
-        return;
-    }
 
     sendMessageToClients(messageText);  // Send the full message (not filtered)
     debugLog(`Message received: ${messageText}`);
-
-    // Handle animation enable/disable requests
-    if (data.message === 'disableAnimations') {
-        disableAnimations = true;
-        debugLog('Animations have been disabled.');
-    }
-
-    if (data.message === 'enableAnimations') {
-        disableAnimations = false;
-        debugLog('Animations have been enabled.');
-    }
 };
 
-export { handleMessage };
+export {handleMessage };  // Export disableAnimations and handleMessage for use elsewhere

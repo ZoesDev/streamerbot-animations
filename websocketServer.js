@@ -1,7 +1,7 @@
-// websocketServer.js
 import { WebSocketServer } from 'ws';
 import { debugLog } from './utils.js';  // Import the debugLog function
 import 'dotenv/config';
+
 // Set up the WebSocket server
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -18,9 +18,17 @@ export const sendMessageToClients = (message) => {
 wss.on('connection', (ws) => {
     debugLog('New WebSocket client connected');
 
-    // Listen for incoming WebSocket messages
+    // Listen for incoming WebSocket messages from the client (Streamer.bot)
     ws.on('message', (message) => {
-        debugLog('Received message from client:', message);
+        // Try parsing the incoming message as JSON
+        let parsedMessage;
+        try {
+            parsedMessage = JSON.parse(message);
+        } catch (err) {
+            debugLog('Invalid message format:', message);
+            return;
+        }
+        console.log(message);
     });
 
     ws.on('close', () => {
