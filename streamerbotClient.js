@@ -12,22 +12,35 @@ const client = new StreamerbotClient({
     retries: -1,
 });
 
+let disableAnimations = false;
+
+
 //enable or disable
 client.on('Command.Triggered', (event) => {
-    console.log('Received event:', event.data.command);
-
     // waiting for command
     if (event.data.command === '!Animations disable') {
-      console.log('Animations disable');
       // Trigger something based on the event
+        if (disableAnimations == true) {
+            console.log('Animations already disabled');
+        } else {
+            console.log('Animations disabled');
+            disableAnimations = true;
+        }
+
     }
     if (event.data.command === '!Animations enable') {
-        console.log('animations enabled');
-        // Trigger something based on the event
-      }
+        // Trigger something based on the event\
+        if (disableAnimations == false) {
+            console.log('Animations already enabled');
+        } else {
+            console.log('Animations enabled');
+            disableAnimations = false;
+        }
+    }
     if (event.data.command === '!Animations status') {
     console.log('animations status');
     // Trigger something based on the event
+    console.log(disableAnimations);
     }
 });
 
