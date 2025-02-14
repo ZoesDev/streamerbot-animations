@@ -1,7 +1,7 @@
 import { debugLog } from './utils.js';  // Import the debugLog function
 import { wss,sendMessageToClients } from './websocketServer.js';  // Import WebSocket server instance
 import 'dotenv/config';
-
+import { isAnimationsDisabled } from './streamerbotClient.js';
 
 // Combined message handler to process Twitch and YouTube chat
 const handleMessage = (data) => {
@@ -31,7 +31,6 @@ const handleMessage = (data) => {
         debugLog('No valid messageText found');
         return;
     }
-
     if (
         (process.env.ignoredUsers && process.env.ignoredUsers.includes(data.username)) ||
         (process.env.ignoredIds && process.env.ignoredIds.includes(data.userId))
@@ -39,9 +38,12 @@ const handleMessage = (data) => {
         debugLog(`Message from ${data.username} ignored.`);
         return;  // Ignore the message
     }
+    if (isAnimationsDisabled()) {
+        console.log('Animations disabled, do not run');
+    } else {
+        sendMessageToClients(messageText);
+    }
 
-
-    sendMessageToClients(messageText);  // Send the full message (not filtered)
     debugLog(`Message received: ${messageText}`);
 };
 

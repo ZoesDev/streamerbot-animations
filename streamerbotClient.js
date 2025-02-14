@@ -1,6 +1,5 @@
-// streamerbotClient.js
 import { StreamerbotClient } from '@streamerbot/client';
-import { debugLog } from './utils.js';  // We'll import the debugLog function
+import { debugLog } from './utils.js';
 import 'dotenv/config';
 
 // Create a new client with Streamer.bot
@@ -12,39 +11,44 @@ const client = new StreamerbotClient({
     retries: -1,
 });
 
-let disableAnimations = false;
+// Object to store state
+const animationState = {
+    disabled: false
+};
 
+// Function to get the current state
+export const isAnimationsDisabled = () => animationState.disabled;
 
-//enable or disable
+// Function to update the state
+export const setAnimationsDisabled = (value) => {
+    animationState.disabled = value;
+};
+
+// Handle enable/disable commands
 client.on('Command.Triggered', (event) => {
-    // waiting for command
-    if (event.data.command === '!Animations disable') {
-      // Trigger something based on the event
-        if (disableAnimations == true) {
+    const { command } = event.data;
+
+    if (command === '!Animations disable') {
+        if (animationState.disabled) {
             console.log('Animations already disabled');
         } else {
             console.log('Animations disabled');
-            disableAnimations = true;
+            setAnimationsDisabled(true);
         }
-
     }
-    if (event.data.command === '!Animations enable') {
-        // Trigger something based on the event\
-        if (disableAnimations == false) {
+
+    if (command === '!Animations enable') {
+        if (!animationState.disabled) {
             console.log('Animations already enabled');
         } else {
             console.log('Animations enabled');
-            disableAnimations = false;
+            setAnimationsDisabled(false);
         }
     }
-    if (event.data.command === '!Animations status') {
-    console.log('animations status');
-    // Trigger something based on the event
-    console.log(disableAnimations);
+
+    if (command === '!Animations status') {
+        console.log(`Animations status: ${animationState.disabled ? 'Disabled' : 'Enabled'}`);
     }
 });
-
-
-
 
 export { client };
