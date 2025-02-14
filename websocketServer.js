@@ -1,6 +1,7 @@
 import { WebSocketServer } from 'ws';
 import { debugLog } from './utils.js';  // Import the debugLog function
 import 'dotenv/config';
+import {client} from ./streamerbotClient.js';
 
 // Set up the WebSocket server
 const wss = new WebSocketServer({ port: 8080 });
